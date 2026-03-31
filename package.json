@@ -6,10 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate:api": "openapi-typescript openapi/openapi.yaml -o src/lib/generated/schema.ts"
   },
   "dependencies": {
     "next": "16.2.1",
+    "openapi-fetch": "^0.17.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -20,6 +22,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
+    "openapi-typescript": "^7.13.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
