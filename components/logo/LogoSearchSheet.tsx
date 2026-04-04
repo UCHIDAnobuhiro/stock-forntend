@@ -33,10 +33,16 @@ export function LogoSearchSheet({ open, onOpenChange }: LogoSearchSheetProps) {
   const { setSymbol } = useSelectedSymbol();
 
   const handleFile = (file: File) => {
+    resetDetect();
     resetAnalysis();
     const url = URL.createObjectURL(file);
     setPreview(url);
     detect(file);
+  };
+
+  const handleAnalyze = (name: string) => {
+    resetAnalysis();
+    analyze(name);
   };
 
   const handleReset = () => {
@@ -102,7 +108,7 @@ export function LogoSearchSheet({ open, onOpenChange }: LogoSearchSheetProps) {
                 results={results}
                 onViewChart={handleViewChart}
                 onAddToWatchlist={handleAddToWatchlist}
-                onAnalyze={analyze}
+                onAnalyze={handleAnalyze}
               />
             )}
 
