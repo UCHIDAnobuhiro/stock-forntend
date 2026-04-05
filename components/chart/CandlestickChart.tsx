@@ -45,11 +45,16 @@ export function CandlestickChart({ candles }: CandlestickChartProps) {
   const candleSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const volumeSeriesRef = useRef<ISeriesApi<"Histogram"> | null>(null);
   const { resolvedTheme } = useTheme();
+  // resolvedTheme は SSR/ハイドレーション前は undefined になる。
+  // ThemeProvider は CandlestickChart より先にマウントされるため、
+  // useEffect 実行時点では ref 経由で正しいテーマを取得できる。
+  const resolvedThemeRef = useRef(resolvedTheme);
+  resolvedThemeRef.current = resolvedTheme;
 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const c = darkColors;
+    const c = resolvedThemeRef.current === "light" ? lightColors : darkColors;
 
     const chart = createChart(containerRef.current, {
       layout: {
