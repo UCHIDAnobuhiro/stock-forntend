@@ -2,6 +2,7 @@
 
 import { LogOut, Menu, ScanSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useSelectedSymbol } from "@/hooks/useSelectedSymbol";
 import { useSymbols } from "@/hooks/useSymbols";
 import { useLogout } from "@/hooks/useLogout";
@@ -68,6 +69,7 @@ export default function Topbar({ onLogoSearchOpen, onMobileSidebarOpen }: Topbar
 
       {/* 右側アクション */}
       <div className="ml-auto flex items-center gap-1">
+        <ThemeToggle />
         <Button
           variant="ghost"
           size="sm"
