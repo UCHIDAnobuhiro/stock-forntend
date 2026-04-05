@@ -4,8 +4,66 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ─── Dark Theme Tokens ─────────────────────────────────────────── */
+/* ─── Light Theme Tokens (default) ─────────────────────────────── */
 :root {
+  /* Surfaces — GitHub light style (page=gray, card=white) */
+  --color-bg:           #f6f8fa;
+  --color-surface-1:    #ffffff;
+  --color-surface-2:    #f6f8fa;
+  --color-surface-3:    #eaeef2;
+
+  /* Borders */
+  --color-border:       #d0d7de;
+  --color-border-subtle:#eaeef2;
+
+  /* Text */
+  --color-text-primary: #1f2328;
+  --color-text-secondary:#57606a;
+  --color-text-muted:   #6e7781;
+
+  /* Accent */
+  --color-accent:       #0969da;
+  --color-accent-dim:   #ddf4ff;
+
+  /* Semantic */
+  --color-bull:         #1a7f37;
+  --color-bear:         #cf222e;
+  --color-bull-dim:     #dafbe1;
+  --color-bear-dim:     #ffebe9;
+
+  /* shadcn/ui CSS variable mapping — light */
+  --background:         #f6f8fa;
+  --foreground:         #1f2328;
+  --card:               #ffffff;
+  --card-foreground:    #1f2328;
+  --popover:            #ffffff;
+  --popover-foreground: #1f2328;
+  --primary:            #0969da;
+  --primary-foreground: #ffffff;
+  --secondary:          #eaeef2;
+  --secondary-foreground:#1f2328;
+  --muted:              #eaeef2;
+  --muted-foreground:   #57606a;
+  --accent:             #eaeef2;
+  --accent-foreground:  #1f2328;
+  --destructive:        #cf222e;
+  --destructive-foreground:#ffffff;
+  --border:             #d0d7de;
+  --input:              #d0d7de;
+  --ring:               #0969da;
+  --radius:             0.5rem;
+  --sidebar:            #ffffff;
+  --sidebar-foreground: #1f2328;
+  --sidebar-primary:    #0969da;
+  --sidebar-primary-foreground:#ffffff;
+  --sidebar-accent:     #eaeef2;
+  --sidebar-accent-foreground:#1f2328;
+  --sidebar-border:     #d0d7de;
+  --sidebar-ring:       #0969da;
+}
+
+/* ─── Dark Theme Tokens ─────────────────────────────────────────── */
+.dark {
   /* Surfaces */
   --color-bg:           #0d1117;
   --color-surface-1:    #161b22;
@@ -19,7 +77,7 @@
   /* Text */
   --color-text-primary: #e6edf3;
   --color-text-secondary:#8b949e;
-  --color-text-muted:   #484f58;
+  --color-text-muted:   #8b949e;
 
   /* Accent */
   --color-accent:       #2f81f7;
@@ -31,7 +89,7 @@
   --color-bull-dim:     #196c2e;
   --color-bear-dim:     #8e1a15;
 
-  /* shadcn/ui CSS variable mapping — always dark */
+  /* shadcn/ui CSS variable mapping — dark */
   --background:         #0d1117;
   --foreground:         #e6edf3;
   --card:               #1c2128;
@@ -51,7 +109,6 @@
   --border:             #30363d;
   --input:              #21262d;
   --ring:               #2f81f7;
-  --radius:             0.5rem;
   --sidebar:            #161b22;
   --sidebar-foreground: #e6edf3;
   --sidebar-primary:    #2f81f7;
@@ -118,6 +175,7 @@ body {
   background: var(--color-bg);
   color: var(--color-text-primary);
   font-family: var(--font-geist-sans, Arial, sans-serif);
+  font-weight: 400;
 }
 
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,9 +28,12 @@ export default function RootLayout({
     <html
       lang="ja"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="h-full bg-[var(--color-bg)] text-[var(--color-text-primary)]">
-        <TooltipProvider>{children}</TooltipProvider>
+        <ThemeProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
