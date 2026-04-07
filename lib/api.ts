@@ -24,9 +24,13 @@ const apiClient = createClient<paths>({
 apiClient.use({
   onRequest({ request }) {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem(TOKEN_KEY);
-      if (token) {
-        request.headers.set("Authorization", `Bearer ${token}`);
+      try {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (token) {
+          request.headers.set("Authorization", `Bearer ${token}`);
+        }
+      } catch {
+        // storage が使えない環境では Authorization を付与せず続行
       }
     }
     return request;

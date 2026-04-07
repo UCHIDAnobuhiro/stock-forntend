@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type SubmitEventHandler } from "react";
 import { useRouter } from "next/navigation";
 import apiClient, { TOKEN_KEY } from "@/lib/api";
 
@@ -47,7 +47,7 @@ export function useLogin() {
    * 成功時は JWT をlocalStorage に保存してホームへリダイレクトする。
    * 失敗時はステータスコードに応じたエラーメッセージを設定する。
    */
-  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setServerError(null);
 

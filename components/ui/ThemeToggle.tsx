@@ -7,6 +7,7 @@ import { useSyncExternalStore } from "react";
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
+  // SSR では false、クライアントでは true を返すことでハイドレーションミスマッチを回避
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
