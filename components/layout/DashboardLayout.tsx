@@ -2,8 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { TOKEN_KEY } from "@/lib/api";
-import { isTokenValid } from "@/lib/auth";
+import { getCsrfToken } from "@/lib/auth";
 import { useSessionExpiry } from "@/hooks/useSessionExpiry";
 import { SessionExpiredDialog } from "./SessionExpiredDialog";
 import Topbar from "./Topbar";
@@ -26,16 +25,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [router]);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem(TOKEN_KEY);
-      if (!token || !isTokenValid(token)) {
-        if (token) localStorage.removeItem(TOKEN_KEY);
-        router.replace("/login");
-        return;
-      }
-      setIsAuthReady(true);
-    };
-    checkAuth();
+    if (getCsrfToken() === null) {
+      router.replace("/login");
+      return;
+    }
+    setIsAuthReady(true);
   }, [router]);
 
   if (!isAuthReady) return null;
