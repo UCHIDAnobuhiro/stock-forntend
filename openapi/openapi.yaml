@@ -114,6 +114,9 @@ paths:
       operationId: logout
       tags:
         - auth
+      security:
+        - cookieAuth: []
+          csrfHeader: []
       responses:
         "200":
           description: ログアウト成功（auth_token・csrf_token Cookieを削除）

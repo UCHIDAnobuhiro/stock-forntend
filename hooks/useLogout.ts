@@ -14,8 +14,9 @@ export function useLogout() {
   async function handleLogout() {
     try {
       await apiClient.DELETE("/v1/logout");
-    } catch {
+    } catch (error) {
       // ネットワークエラーでもクライアント側はログイン画面へ遷移する
+      console.warn("Logout request failed:", error);
     }
     router.replace("/login");
   }

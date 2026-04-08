@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { getCsrfToken } from "@/lib/auth";
 import { useSessionExpiry } from "@/hooks/useSessionExpiry";
@@ -29,7 +29,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       router.replace("/login");
       return;
     }
-    setIsAuthReady(true);
+    startTransition(() => {
+      setIsAuthReady(true);
+    });
   }, [router]);
 
   if (!isAuthReady) return null;
