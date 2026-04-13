@@ -64,6 +64,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/login:
     post:
@@ -107,6 +113,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/logout:
     delete:
@@ -114,8 +126,7 @@ paths:
       operationId: logout
       tags:
         - auth
-      security:
-        - cookieAuth: []
+      security: []
       responses:
         "200":
           description: ログアウト成功（auth_token・csrf_token Cookieを削除）
@@ -162,6 +173,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CandleResponse"
+        "400":
+          description: バリデーションエラー（outputsizeに整数以外が指定された等）
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "502":
           description: 外部API通信エラー
           content:
@@ -384,6 +401,12 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
         "413":
           description: 画像サイズ超過（10MB超）
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: サーバーエラー
           content:
             application/json:
               schema:
