@@ -9,13 +9,16 @@
 
 | 用途 | ライブラリ |
 |---|---|
-| フレームワーク | Next.js (App Router) |
+| フレームワーク | Next.js 16 (App Router) |
 | 言語 | TypeScript |
 | APIクライアント | openapi-fetch |
 | 型生成 | openapi-typescript |
 | チャート | TradingView Lightweight Charts |
-| スタイル | Tailwind CSS |
+| スタイル | Tailwind CSS v4 |
 | データ取得 | SWR |
+| ドラッグ&ドロップ | @dnd-kit/core, @dnd-kit/sortable |
+| UIコンポーネント | @base-ui/react, shadcn/ui |
+| テスト | Vitest, @testing-library/react |
 
 ## ディレクトリ構成
 
@@ -51,7 +54,7 @@ src/
 
 - **選択中の銘柄・期間** → URL の searchParams で管理（ブックマーク・共有に対応）
 - **サーバーデータ** → SWR（キャッシュ・ローディング・エラー管理）
-- **JWTトークン** → Cookie または localStorage
+- **認証トークン** → HttpOnly Cookie（`auth_token`）でサーバーが管理
 - グローバル状態管理ライブラリ（Zustand等）は必要になったタイミングで追加する
 
 ### 層の役割
@@ -69,21 +72,26 @@ Go バックエンド
 ## API
 
 - `NEXT_PUBLIC_API_BASE_URL` 環境変数でベースURLを管理
-- 認証: JWT（Authorization: Bearer トークン）
+- 認証: Cookie 認証（`auth_token` HttpOnly Cookie）+ CSRF トークン（`csrf_token` Cookie）
+- 状態変更リクエスト（POST/PUT/DELETE）は `X-CSRF-Token` ヘッダーが必要
 - 型定義は `schema.ts` から自動生成されるため、補完・型エラーが有効
 
 ### 主要エンドポイント
 
-| エンドポイント | 用途 |
-|---|---|
-| `GET /v1/candles/{code}` | ローソク足データ取得 |
-| `GET /v1/symbols` | アクティブ銘柄一覧 |
-| `GET /v1/watchlist` | ウォッチリスト取得 |
-| `POST /v1/watchlist` | ウォッチリスト追加 |
-| `DELETE /v1/watchlist/{code}` | ウォッチリスト削除 |
-| `PUT /v1/watchlist/order` | ウォッチリスト並び替え |
-| `POST /v1/logo/detect` | 画像からロゴ検出 |
-| `POST /v1/logo/analyze` | 企業分析サマリー生成 |
+| エンドポイント | 認証 | 用途 |
+|---|---|---|
+| `GET /healthz` | 不要 | ヘルスチェック |
+| `POST /v1/signup` | 不要 | ユーザー登録 |
+| `POST /v1/login` | 不要 | ログイン（Cookie発行） |
+| `DELETE /v1/logout` | 不要 | ログアウト（Cookie削除） |
+| `GET /v1/candles/{code}` | Cookie | ローソク足データ取得 |
+| `GET /v1/symbols` | Cookie | アクティブ銘柄一覧 |
+| `GET /v1/watchlist` | Cookie | ウォッチリスト取得 |
+| `POST /v1/watchlist` | Cookie + CSRF | ウォッチリスト追加 |
+| `DELETE /v1/watchlist/{code}` | Cookie + CSRF | ウォッチリスト削除 |
+| `PUT /v1/watchlist/order` | Cookie + CSRF | ウォッチリスト並び替え |
+| `POST /v1/logo/detect` | Cookie + CSRF | 画像からロゴ検出 |
+| `POST /v1/logo/analyze` | Cookie + CSRF | 企業分析サマリー生成 |
 
 ## デザイン方針
 
@@ -104,6 +112,9 @@ Go バックエンド
 ```bash
 npm run dev           # 開発サーバー起動
 npm run build         # 本番ビルド
+npm run lint          # ESLint 実行
+npm run test          # テスト実行（Vitest）
+npm run test:watch    # テストウォッチモード
 npm run generate:api  # openapi.yaml から schema.ts を再生成
 ```
 
@@ -113,5 +124,5 @@ npm run generate:api  # openapi.yaml から schema.ts を再生成
 
 ```bash
 npm run generate:api
-# = npx openapi-typescript openapi/openapi.yaml -o src/lib/generated/schema.ts
+# = openapi-typescript openapi/openapi.yaml -o lib/generated/schema.ts
 ```

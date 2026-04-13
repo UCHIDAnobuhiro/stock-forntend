@@ -1,36 +1,226 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Stock View Frontend (Next.js / App Router)
 
-## Getting Started
+## 概要
 
-First, run the development server:
+**株式データ表示・ウォッチリスト管理フロントエンド**
+Next.js（App Router）と TypeScript で構築し、`stock_backend`（Go / Gin）と連携します。
+株価チャートの表示・ウォッチリスト管理・企業ロゴ分析機能を提供します。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 主な機能
+
+- **ユーザー認証**
+
+  - メールアドレス/パスワードによるサインアップ・ログイン・ログアウト
+  - Cookie 認証（HttpOnly `auth_token`）+ Double Submit CSRF パターン
+  - セッション切れの自動検知とダイアログ通知
+
+- **株価チャート**
+
+  - TradingView Lightweight Charts によるローソク足チャート
+  - 時間足・取得件数の切り替え（URL の searchParams で管理）
+  - ローディング・空状態のスケルトン表示
+
+- **ウォッチリスト**
+
+  - 銘柄の追加・削除
+  - @dnd-kit によるドラッグ&ドロップ並び替え
+  - SWR によるキャッシュとリアルタイム反映
+
+- **企業ロゴ分析**
+
+  - 画像のドラッグ&ドロップアップロードからロゴを検出
+  - 検出した企業の AI 分析サマリーを表示（Gemini API）
+
+- **テーマ切り替え**
+  - ライト / ダーク モードの切り替え（next-themes）
+
+---
+
+## 技術スタック
+
+| カテゴリ           | ライブラリ / ツール                        |
+| ------------------ | ------------------------------------------ |
+| フレームワーク     | Next.js 16（App Router）                   |
+| 言語               | TypeScript                                 |
+| スタイル           | Tailwind CSS v4                            |
+| API クライアント   | openapi-fetch                              |
+| 型生成             | openapi-typescript                         |
+| データ取得         | SWR                                        |
+| チャート           | TradingView Lightweight Charts             |
+| ドラッグ&ドロップ  | @dnd-kit/core, @dnd-kit/sortable           |
+| UI コンポーネント  | @base-ui/react, shadcn/ui, lucide-react    |
+| テーマ             | next-themes                                |
+| テスト             | Vitest, @testing-library/react             |
+
+## ディレクトリ構成
+
+```text
+.
+├── app/                              # ページ・レイアウト（App Router）
+│   ├── layout.tsx                    # ルートレイアウト（フォント・テーマ・Tooltip）
+│   ├── page.tsx                      # ダッシュボード（チャート表示）
+│   ├── login/
+│   │   └── page.tsx                  # ログインページ
+│   └── signup/
+│       └── page.tsx                  # サインアップページ
+│
+├── components/                       # UIコンポーネント（表示専任）
+│   ├── auth/
+│   │   ├── AuthPageShell.tsx         # 認証ページ共通レイアウト
+│   │   ├── LoginForm.tsx             # ログインフォーム
+│   │   └── SignupForm.tsx            # サインアップフォーム
+│   ├── chart/
+│   │   ├── CandlestickChart.tsx      # ローソク足チャート本体
+│   │   ├── ChartContainer.tsx        # チャートのデータ取得・状態管理
+│   │   ├── ChartEmpty.tsx            # データなし状態
+│   │   ├── ChartSkeleton.tsx         # ローディングスケルトン
+│   │   └── ChartToolbar.tsx          # 時間足・件数の切り替えUI
+│   ├── layout/
+│   │   ├── DashboardLayout.tsx       # ダッシュボード全体レイアウト
+│   │   ├── Sidebar.tsx               # サイドバー（ウォッチリスト・ロゴ検索）
+│   │   ├── Topbar.tsx                # トップバー（銘柄選択・テーマ切り替え）
+│   │   ├── BottomNav.tsx             # モバイル用ボトムナビ
+│   │   └── SessionExpiredDialog.tsx  # セッション切れダイアログ
+│   ├── logo/
+│   │   ├── LogoDropzone.tsx          # 画像ドラッグ&ドロップUI
+│   │   ├── LogoDetectResults.tsx     # ロゴ検出結果リスト
+│   │   ├── LogoSearchSheet.tsx       # ロゴ検索シート（モバイル）
+│   │   └── CompanyAnalysisCard.tsx   # 企業分析サマリーカード
+│   ├── watchlist/
+│   │   ├── WatchlistPanel.tsx        # ウォッチリスト全体パネル
+│   │   ├── WatchlistItem.tsx         # ウォッチリスト1件（ドラッグ対応）
+│   │   ├── WatchlistAddButton.tsx    # 銘柄追加ボタン
+│   │   └── WatchlistEmpty.tsx        # 空状態
+│   ├── providers/
+│   │   └── ThemeProvider.tsx         # next-themes プロバイダー
+│   └── ui/                           # shadcn/ui 汎用コンポーネント群
+│       ├── ThemeToggle.tsx
+│       ├── badge.tsx
+│       ├── button.tsx
+│       ├── command.tsx
+│       ├── dialog.tsx
+│       ├── input.tsx
+│       ├── input-group.tsx
+│       ├── popover.tsx
+│       ├── scroll-area.tsx
+│       ├── separator.tsx
+│       ├── sheet.tsx
+│       ├── textarea.tsx
+│       └── tooltip.tsx
+│
+├── hooks/                            # カスタムフック（ロジック・データ取得）
+│   ├── useCandles.ts                 # ローソク足データ取得（SWR）
+│   ├── useSymbols.ts                 # 銘柄一覧取得（SWR）
+│   ├── useWatchlist.ts               # ウォッチリスト操作（取得・追加・削除・並び替え）
+│   ├── useSelectedSymbol.ts          # 選択中の銘柄（URL searchParams）
+│   ├── useLogin.ts                   # ログイン処理
+│   ├── useLogout.ts                  # ログアウト処理
+│   ├── useSignup.ts                  # サインアップ処理
+│   ├── useSessionExpiry.ts           # セッション切れ検知
+│   ├── useLogoDetect.ts              # ロゴ検出処理
+│   ├── useLogoAnalyze.ts             # 企業分析処理
+│   └── __tests__/                    # フックのユニットテスト（Vitest）
+│
+├── lib/
+│   ├── api.ts                        # API クライアント（openapi-fetch・CSRF ミドルウェア）
+│   ├── auth.ts                       # CSRF トークン取得・JWT 検証ユーティリティ
+│   ├── utils.ts                      # 汎用ユーティリティ（cn 等）
+│   └── generated/
+│       └── schema.ts                 # 自動生成の型定義（直接編集禁止）
+│
+├── openapi/
+│   └── openapi.yaml                  # バックエンド API スキーマ（OpenAPI 3.0.3）
+│
+├── .env.example                      # 環境変数テンプレート
+├── next.config.ts
+├── tsconfig.json
+├── vitest.config.ts
+└── vitest.setup.ts
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 認証設計
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Cookie 認証 + Double Submit CSRF パターン
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **ログイン時**: バックエンドが `auth_token`（HttpOnly）と `csrf_token` の 2 つの Cookie を発行
+- **認証済みリクエスト**: `credentials: "include"` で Cookie を自動送信
+- **状態変更（POST / PUT / DELETE）**: `csrf_token` Cookie を読み取り `X-CSRF-Token` ヘッダーに付与
+- **セッション切れ（401）**: `SESSION_EXPIRED_EVENT` カスタムイベントを発火し、ダイアログで通知
 
-## Learn More
+```
+lib/api.ts
+  → credentials: "include"（全リクエスト）
+  → X-CSRF-Token ヘッダー付与（POST / PUT / DELETE）
+  → 401 検知 → SESSION_EXPIRED_EVENT 発火
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 状態管理
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| 状態               | 管理方法                                  |
+| ------------------ | ----------------------------------------- |
+| 選択中の銘柄・期間 | URL の searchParams（ブックマーク対応）   |
+| サーバーデータ     | SWR（キャッシュ・ローディング・エラー）   |
+| 認証トークン       | HttpOnly Cookie（サーバー管理）           |
+| テーマ             | next-themes（localStorage）              |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 層の役割
 
-## Deploy on Vercel
+```
+コンポーネント (components/)
+    ↓ hooks を呼ぶ
+カスタムフック (hooks/)
+    ↓ lib/api.ts を呼ぶ
+API クライアント (lib/api.ts)
+    ↓
+Go バックエンド (stock_backend)
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## セットアップ
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 前提条件
+
+- Node.js 20 以上
+- `stock_backend` が起動済みであること（デフォルト: `http://localhost:8080`）
+
+### 手順
+
+```bash
+# リポジトリをクローン
+git clone https://github.com/UCHIDAnobuhiro/stock-frontend.git
+cd stock-frontend
+
+# 依存パッケージのインストール
+npm install
+
+# 環境変数の設定
+cp .env.example .env.local
+# .env.local を編集して NEXT_PUBLIC_API_BASE_URL を設定
+
+# 開発サーバーの起動
+npm run dev
+```
+
+ブラウザで [http://localhost:3000](http://localhost:3000) を開く。
+
+## コマンド
+
+```bash
+npm run dev           # 開発サーバー起動
+npm run build         # 本番ビルド
+npm run start         # 本番サーバー起動
+npm run lint          # ESLint 実行
+npm run test          # テスト実行（Vitest）
+npm run test:watch    # テストウォッチモード
+npm run generate:api  # openapi.yaml から schema.ts を再生成
+```
+
+## 型定義の再生成
+
+バックエンドの `openapi/openapi.yaml` を更新したら以下を実行：
+
+```bash
+npm run generate:api
+# = openapi-typescript openapi/openapi.yaml -o lib/generated/schema.ts
+```
+
+生成先: `lib/generated/schema.ts`（直接編集禁止）
