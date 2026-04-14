@@ -258,7 +258,7 @@ export function CandlestickChart({ candles, interval, smaEnabled }: CandlestickC
     volumeSeriesRef.current.setData(volumeData);
     const total = sorted.length;
     chartRef.current?.timeScale().setVisibleLogicalRange({
-      from: total - 60,
+      from: Math.max(0, total - 60),
       to: total - 1,
     });
   }, [candles, resolvedTheme]);
