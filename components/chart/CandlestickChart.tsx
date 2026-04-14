@@ -60,6 +60,11 @@ export function CandlestickChart({ candles, interval, smaEnabled }: CandlestickC
     resolvedThemeRef.current = resolvedTheme;
   }, [resolvedTheme]);
 
+  const intervalRef = useRef(interval);
+  useEffect(() => {
+    intervalRef.current = interval;
+  }, [interval]);
+
   // チャート生成完了フラグ（useIndicatorSeries の effect をチャート生成後に走らせるため）
   const [chartReady, setChartReady] = useState(false);
 
@@ -189,7 +194,7 @@ export function CandlestickChart({ candles, interval, smaEnabled }: CandlestickC
     chartRef.current = chart;
     candleSeriesRef.current = candleSeries;
     volumeSeriesRef.current = volumeSeries;
-    setChartReady(true);
+    queueMicrotask(() => setChartReady(true));
 
     const observer = new ResizeObserver(() => {
       if (containerRef.current) {
@@ -207,14 +212,7 @@ export function CandlestickChart({ candles, interval, smaEnabled }: CandlestickC
       chartRef.current = null;
       setChartReady(false);
     };
-  }, []);
-
-  // interval が変わったときにレジェンド2行目を更新するため依存に追加
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const intervalRef = useRef(interval);
-  useEffect(() => {
-    intervalRef.current = interval;
-  }, [interval]);
+  }, [smaSeriesMapRef]);
 
   useEffect(() => {
     if (!chartRef.current || !candleSeriesRef.current || !volumeSeriesRef.current) return;

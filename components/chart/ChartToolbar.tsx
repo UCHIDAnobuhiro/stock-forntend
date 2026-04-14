@@ -67,31 +67,31 @@ export function ChartToolbar({ smaEnabled, toggleSma }: ChartToolbarProps) {
           style={{ backgroundColor: "var(--color-border)" }}
         />
         <div className="flex items-center gap-1 overflow-x-auto">
-        {INTERVALS.map((item) => (
-          <button
-            key={item.value}
-            onClick={() => setInterval(item.value)}
-            className={cn(
-              "whitespace-nowrap rounded px-2.5 py-1 text-xs font-medium transition-colors",
-              interval === item.value
-                ? "text-white"
-                : "hover:opacity-80"
-            )}
-            style={
-              interval === item.value
-                ? {
-                    backgroundColor: "var(--color-accent)",
-                    color: "#ffffff",
-                  }
-                : {
-                    backgroundColor: "transparent",
-                    color: "var(--color-text-secondary)",
-                  }
-            }
-          >
-            {item.label}
-          </button>
-        ))}
+          {INTERVALS.map((item) => (
+            <button
+              key={item.value}
+              onClick={() => setInterval(item.value)}
+              className={cn(
+                "whitespace-nowrap rounded px-2.5 py-1 text-xs font-medium transition-colors",
+                interval === item.value
+                  ? "text-white"
+                  : "hover:opacity-80"
+              )}
+              style={
+                interval === item.value
+                  ? {
+                      backgroundColor: "var(--color-accent)",
+                      color: "#ffffff",
+                    }
+                  : {
+                      backgroundColor: "transparent",
+                      color: "var(--color-text-secondary)",
+                    }
+              }
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
       </div>
     </div>
