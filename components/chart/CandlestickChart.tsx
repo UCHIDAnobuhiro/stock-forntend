@@ -38,6 +38,8 @@ const lightColors = {
   volumeBear: "#f78c95",
 };
 
+const DEFAULT_VISIBLE_CANDLES = 60;
+
 interface CandlestickChartProps {
   candles: CandleResponse[];
   interval: Interval;
@@ -256,7 +258,11 @@ export function CandlestickChart({ candles, interval, smaEnabled }: CandlestickC
 
     candleSeriesRef.current.setData(candleData);
     volumeSeriesRef.current.setData(volumeData);
-    chartRef.current?.timeScale().fitContent();
+    const total = sorted.length;
+    chartRef.current?.timeScale().setVisibleLogicalRange({
+      from: Math.max(0, total - DEFAULT_VISIBLE_CANDLES),
+      to: total - 1,
+    });
   }, [candles, resolvedTheme]);
 
   return (
