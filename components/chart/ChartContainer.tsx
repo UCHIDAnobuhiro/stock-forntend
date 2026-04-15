@@ -11,11 +11,11 @@ import { ChartEmpty } from "./ChartEmpty";
 export function ChartContainer() {
   const { symbol, interval } = useSelectedSymbol();
   const { candles, isLoading, error } = useCandles(symbol, interval);
-  const { smaEnabled, toggleSma } = useIndicators();
+  const { smaEnabled, toggleSma, bollingerEnabled, toggleBollinger } = useIndicators();
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <ChartToolbar smaEnabled={smaEnabled} toggleSma={toggleSma} />
+      <ChartToolbar smaEnabled={smaEnabled} toggleSma={toggleSma} bollingerEnabled={bollingerEnabled} toggleBollinger={toggleBollinger} />
       <div className="flex-1 overflow-hidden" style={{ backgroundColor: "var(--color-bg)" }}>
         {!symbol ? (
           <ChartEmpty />
@@ -29,7 +29,7 @@ export function ChartContainer() {
             データの取得に失敗しました
           </div>
         ) : (
-          <CandlestickChart candles={candles} interval={interval} smaEnabled={smaEnabled} />
+          <CandlestickChart candles={candles} interval={interval} smaEnabled={smaEnabled} bollingerEnabled={bollingerEnabled} />
         )}
       </div>
     </div>

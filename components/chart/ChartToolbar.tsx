@@ -14,9 +14,11 @@ const INTERVALS: { value: Interval; label: string }[] = [
 interface ChartToolbarProps {
   smaEnabled: boolean;
   toggleSma: () => void;
+  bollingerEnabled: boolean;
+  toggleBollinger: () => void;
 }
 
-export function ChartToolbar({ smaEnabled, toggleSma }: ChartToolbarProps) {
+export function ChartToolbar({ smaEnabled, toggleSma, bollingerEnabled, toggleBollinger }: ChartToolbarProps) {
   const { symbol, interval, setInterval } = useSelectedSymbol();
   const { symbols } = useSymbols();
   const selectedSymbol = symbols.find((s) => s.code === symbol);
@@ -61,6 +63,8 @@ export function ChartToolbar({ smaEnabled, toggleSma }: ChartToolbarProps) {
         <IndicatorToolbar
           smaEnabled={smaEnabled}
           toggleSma={toggleSma}
+          bollingerEnabled={bollingerEnabled}
+          toggleBollinger={toggleBollinger}
         />
         <div
           className="mx-1 h-4 w-px shrink-0"
