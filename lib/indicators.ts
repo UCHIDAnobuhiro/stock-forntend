@@ -21,16 +21,26 @@ export function calcBollingerBands(
 
   const result: BollingerBandData[] = [];
 
-  for (let i = period - 1; i < data.length; i++) {
-    let sum = 0;
-    for (let j = i - period + 1; j <= i; j++) sum += data[j].value;
-    const mean = sum / period;
+  // 初期ウィンドウの sum / sumSq を構築
+  let sum = 0;
+  let sumSq = 0;
+  for (let i = 0; i < period; i++) {
+    sum += data[i].value;
+    sumSq += data[i].value ** 2;
+  }
 
-    let variance = 0;
-    for (let j = i - period + 1; j <= i; j++) {
-      variance += (data[j].value - mean) ** 2;
+  for (let i = period - 1; i < data.length; i++) {
+    // i > period-1 のとき: 古い値を除いて新しい値を加える
+    if (i > period - 1) {
+      const outVal = data[i - period].value;
+      const inVal = data[i].value;
+      sum += inVal - outVal;
+      sumSq += inVal ** 2 - outVal ** 2;
     }
-    const stdDev = Math.sqrt(variance / period);
+
+    const mean = sum / period;
+    // 浮動小数点誤差で負値になるケースを防ぐ
+    const stdDev = Math.sqrt(Math.max(0, sumSq / period - mean ** 2));
 
     result.push({
       time: data[i].time,

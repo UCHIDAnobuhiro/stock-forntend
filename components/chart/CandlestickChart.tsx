@@ -13,7 +13,7 @@ import type { CandleResponse } from "@/hooks/useCandles";
 import type { Interval } from "@/hooks/useSelectedSymbol";
 import { SMA_PERIODS, getSmaColor, BOLLINGER_PERIOD, BOLLINGER_COLORS } from "@/lib/indicators";
 import { useIndicatorSeries } from "./useIndicatorSeries";
-import { useBollingerSeries } from "./useBollingerSeries";
+import { useBollingerSeries, type BollingerKey } from "./useBollingerSeries";
 
 const darkColors = {
   background: "#0d1117",
@@ -214,7 +214,7 @@ export function CandlestickChart({ candles, interval, smaEnabled, bollingerEnabl
           ];
           let firstBb = true;
           bbEntries.forEach(({ label, key, color }) => {
-            const series = bbMap.get(key as Parameters<typeof bbMap.get>[0]);
+            const series = bbMap.get(key as BollingerKey);
             if (!series) return;
             const d = param.seriesData.get(series) as { value: number } | undefined;
             if (d === undefined) return;

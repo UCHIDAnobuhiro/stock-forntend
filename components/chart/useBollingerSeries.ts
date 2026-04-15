@@ -3,7 +3,7 @@ import { LineSeries, type IChartApi, type ISeriesApi } from "lightweight-charts"
 import type { CandleResponse } from "@/hooks/useCandles";
 import { calcBollingerBands, BOLLINGER_COLORS } from "@/lib/indicators";
 
-type BollingerKey =
+export type BollingerKey =
   | "middle"
   | "upper1"
   | "lower1"
