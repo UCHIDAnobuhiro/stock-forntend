@@ -11,8 +11,9 @@ import {
 } from "lightweight-charts";
 import type { CandleResponse } from "@/hooks/useCandles";
 import type { Interval } from "@/hooks/useSelectedSymbol";
-import { SMA_PERIODS, getSmaColor } from "@/lib/indicators";
+import { SMA_PERIODS, getSmaColor, BOLLINGER_PERIOD, BOLLINGER_COLORS } from "@/lib/indicators";
 import { useIndicatorSeries } from "./useIndicatorSeries";
+import { useBollingerSeries, type BollingerKey } from "./useBollingerSeries";
 
 const darkColors = {
   background: "#0d1117",
@@ -44,12 +45,14 @@ interface CandlestickChartProps {
   candles: CandleResponse[];
   interval: Interval;
   smaEnabled: boolean;
+  bollingerEnabled: boolean;
 }
 
-export function CandlestickChart({ candles, interval, smaEnabled }: CandlestickChartProps) {
+export function CandlestickChart({ candles, interval, smaEnabled, bollingerEnabled }: CandlestickChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const legendRef = useRef<HTMLDivElement>(null);
   const smaLegendRef = useRef<HTMLDivElement>(null);
+  const bbLegendRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const volumeSeriesRef = useRef<ISeriesApi<"Histogram"> | null>(null);
@@ -72,6 +75,9 @@ export function CandlestickChart({ candles, interval, smaEnabled }: CandlestickC
 
   // SMAシリーズ管理（period → ISeriesApi<"Line">）
   const smaSeriesMapRef = useIndicatorSeries(chartRef, candles, interval, smaEnabled, chartReady);
+
+  // ボリンジャーバンドシリーズ管理
+  const bbSeriesMapRef = useBollingerSeries(chartRef, candles, bollingerEnabled, chartReady);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -191,6 +197,44 @@ export function CandlestickChart({ candles, interval, smaEnabled }: CandlestickC
         smaLegendRef.current!.appendChild(labelSpan);
         smaLegendRef.current!.appendChild(valueB);
       });
+
+      // 3行目: ボリンジャーバンド値
+      if (bbLegendRef.current) {
+        bbLegendRef.current.textContent = "";
+        const bbMap = bbSeriesMapRef.current;
+        if (bbMap.size > 0) {
+          const bbEntries: Array<{ label: string; key: string; color: string }> = [
+            { label: `BB(${BOLLINGER_PERIOD})`, key: "middle", color: BOLLINGER_COLORS.middle },
+            { label: "+1σ", key: "upper1", color: BOLLINGER_COLORS.sigma1 },
+            { label: "-1σ", key: "lower1", color: BOLLINGER_COLORS.sigma1 },
+            { label: "+2σ", key: "upper2", color: BOLLINGER_COLORS.sigma2 },
+            { label: "-2σ", key: "lower2", color: BOLLINGER_COLORS.sigma2 },
+            { label: "+3σ", key: "upper3", color: BOLLINGER_COLORS.sigma3 },
+            { label: "-3σ", key: "lower3", color: BOLLINGER_COLORS.sigma3 },
+          ];
+          let firstBb = true;
+          bbEntries.forEach(({ label, key, color }) => {
+            const series = bbMap.get(key as BollingerKey);
+            if (!series) return;
+            const d = param.seriesData.get(series) as { value: number } | undefined;
+            if (d === undefined) return;
+
+            if (!firstBb) bbLegendRef.current!.appendChild(document.createTextNode("\u00a0\u00a0"));
+            firstBb = false;
+
+            const labelSpan = document.createElement("span");
+            labelSpan.style.color = colors.textColor;
+            labelSpan.textContent = label;
+
+            const valueB = document.createElement("b");
+            valueB.style.color = color;
+            valueB.textContent = ` ${fmt(d.value)}`;
+
+            bbLegendRef.current!.appendChild(labelSpan);
+            bbLegendRef.current!.appendChild(valueB);
+          });
+        }
+      }
     });
 
     chartRef.current = chart;
@@ -214,7 +258,7 @@ export function CandlestickChart({ candles, interval, smaEnabled }: CandlestickC
       chartRef.current = null;
       setChartReady(false);
     };
-  }, [smaSeriesMapRef]);
+  }, [smaSeriesMapRef, bbSeriesMapRef]);
 
   useEffect(() => {
     if (!chartRef.current || !candleSeriesRef.current || !volumeSeriesRef.current) return;
@@ -271,6 +315,7 @@ export function CandlestickChart({ candles, interval, smaEnabled }: CandlestickC
       <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-0.5">
         <div ref={legendRef} className="text-xs font-mono" />
         <div ref={smaLegendRef} className="text-xs font-mono" />
+        <div ref={bbLegendRef} className="text-xs font-mono" />
       </div>
     </div>
   );

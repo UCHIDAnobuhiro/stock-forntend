@@ -5,9 +5,11 @@ import { useRef, useState, useEffect } from "react";
 interface IndicatorToolbarProps {
   smaEnabled: boolean;
   toggleSma: () => void;
+  bollingerEnabled: boolean;
+  toggleBollinger: () => void;
 }
 
-export function IndicatorToolbar({ smaEnabled, toggleSma }: IndicatorToolbarProps) {
+export function IndicatorToolbar({ smaEnabled, toggleSma, bollingerEnabled, toggleBollinger }: IndicatorToolbarProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -73,6 +75,18 @@ export function IndicatorToolbar({ smaEnabled, toggleSma }: IndicatorToolbarProp
               className="h-3.5 w-3.5 cursor-pointer rounded"
             />
             SMA
+          </label>
+          <label
+            className="flex cursor-pointer items-center gap-2 text-xs select-none mt-2"
+            style={{ color: "var(--color-text-primary)" }}
+          >
+            <input
+              type="checkbox"
+              checked={bollingerEnabled}
+              onChange={toggleBollinger}
+              className="h-3.5 w-3.5 cursor-pointer rounded"
+            />
+            BB
           </label>
         </div>
       )}
