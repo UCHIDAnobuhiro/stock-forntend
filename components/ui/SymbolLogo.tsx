@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface SymbolLogoProps {
   code: string;
@@ -9,11 +9,10 @@ interface SymbolLogoProps {
 }
 
 export function SymbolLogo({ code, logoUrl, size = 20 }: SymbolLogoProps) {
-  const [failed, setFailed] = useState(false);
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
 
-  useEffect(() => {
-    setFailed(false);
-  }, [logoUrl]);
+  // logoUrl が変われば failed は自動的に false になる
+  const failed = !!logoUrl && logoUrl === failedUrl;
 
   const initial = code.replace(/[^A-Za-z]/g, "")[0]?.toUpperCase() ?? "?";
   const fontSize = Math.max(8, Math.floor(size * 0.45));
@@ -27,7 +26,7 @@ export function SymbolLogo({ code, logoUrl, size = 20 }: SymbolLogoProps) {
         width={size}
         height={size}
         className="rounded-full object-contain shrink-0"
-        onError={() => setFailed(true)}
+        onError={() => setFailedUrl(logoUrl)}
       />
     );
   }
