@@ -35,9 +35,9 @@ export function WatchlistPanel({ onItemClick }: WatchlistPanelProps) {
   const { symbol: activeSymbol, setSymbol } = useSelectedSymbol();
   const [viewMode, setViewMode] = useState<"compact" | "chart">("compact");
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorageはクライアントでしか読めないためuseEffectが必要
   useEffect(() => {
     const stored = localStorage.getItem("watchlist-view-mode");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorageはクライアントでしか読めないためuseEffectが必要
     if (stored === "chart") setViewMode("chart");
   }, []);
 
