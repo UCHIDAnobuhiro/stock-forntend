@@ -4,7 +4,7 @@ import { useId } from "react";
 import { useCandles } from "@/hooks/useCandles";
 
 export function WatchlistSparkline({ code }: { code: string }) {
-  const gradientId = useId().replace(/:/g, "");
+  const gradientId = `spark${useId().replace(/:/g, "")}`;
   const { candles, isLoading } = useCandles(code, "1day");
 
   if (isLoading) {
