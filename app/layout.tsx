@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Stock App",
+  title: "Stock View App",
   description: "株価チャート・ウォッチリスト管理",
 };
 
