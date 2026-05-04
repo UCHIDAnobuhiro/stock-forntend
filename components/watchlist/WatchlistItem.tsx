@@ -68,15 +68,6 @@ export function WatchlistItem({ id, code, name, logoUrl, isActive, onClick, onRe
         <GripVertical className="h-3.5 w-3.5" />
       </button>
 
-      {/* アクティブインジケーター */}
-      <span
-        className={cn(
-          "h-1.5 w-1.5 shrink-0 rounded-full transition-colors self-center",
-          isActive ? "opacity-100" : "opacity-0"
-        )}
-        style={{ backgroundColor: "var(--color-accent)" }}
-      />
-
       {/* 銘柄情報 */}
       <div
         className={cn(
