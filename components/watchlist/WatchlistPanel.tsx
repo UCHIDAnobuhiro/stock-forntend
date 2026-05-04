@@ -15,15 +15,21 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { BarChart2, List } from "lucide-react";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { useSymbols } from "@/hooks/useSymbols";
 import { useSelectedSymbol } from "@/hooks/useSelectedSymbol";
 import { WatchlistItem } from "./WatchlistItem";
 import { WatchlistEmpty } from "./WatchlistEmpty";
-import { WatchlistAddButton } from "./WatchlistAddButton";
-import { Separator } from "@/components/ui/separator";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 interface WatchlistPanelProps {
   onItemClick?: () => void;
@@ -31,9 +37,11 @@ interface WatchlistPanelProps {
 
 export function WatchlistPanel({ onItemClick }: WatchlistPanelProps) {
   const { items, isLoading, removeSymbol, reorder } = useWatchlist();
-  const { symbols } = useSymbols();
+  const { symbols, isLoading: symbolsLoading } = useSymbols();
   const { symbol: activeSymbol, setSymbol } = useSelectedSymbol();
   const [viewMode, setViewMode] = useState<"compact" | "chart">("compact");
+  const [query, setQuery] = useState("");
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem("watchlist-view-mode");
@@ -67,24 +75,86 @@ export function WatchlistPanel({ onItemClick }: WatchlistPanelProps) {
     [symbols]
   );
 
+  const handleSelect = (code: string) => {
+    setSymbol(code);
+    setQuery("");
+    onItemClick?.();
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* ヘッダー */}
       <div
-        className="h-10 shrink-0 px-3 flex items-center justify-between border-b"
+        className="h-10 shrink-0 px-2 flex items-center gap-1 border-b"
         style={{ borderColor: "var(--color-border)" }}
       >
-        <p
-          className="text-[10px] font-semibold uppercase tracking-widest"
-          style={{ color: "var(--color-text-muted)" }}
+        {/* インライン検索 */}
+        <div
+          ref={searchContainerRef}
+          className="relative flex-1 min-w-0"
+          onBlur={(e) => {
+            if (!searchContainerRef.current?.contains(e.relatedTarget as Node)) {
+              setQuery("");
+            }
+          }}
         >
-          ウォッチリスト
-        </p>
+          <Command className="overflow-visible! bg-transparent! rounded-none! p-0! h-full [&_[data-slot=command-input-wrapper]]:p-0 [&_[data-slot=command-input-wrapper]]:h-full [&_[data-slot=input-group]]:h-full! [&_[data-slot=input-group]]:border-0! [&_[data-slot=input-group]]:bg-transparent! [&_[data-slot=input-group]]:rounded-none! [&_[data-slot=input-group]]:shadow-none!">
+            <CommandInput
+              value={query}
+              placeholder="銘柄コード・企業名で検索..."
+              className="text-xs"
+              style={{ color: "var(--color-text-primary)" }}
+              onValueChange={setQuery}
+            />
+            {query.length > 0 && (
+              <CommandList
+                className="absolute top-full left-0 w-64 z-50 mt-1 rounded-md border shadow-lg"
+                style={{
+                  backgroundColor: "var(--color-surface-2)",
+                  borderColor: "var(--color-border)",
+                }}
+              >
+                {symbolsLoading ? (
+                  <div
+                    className="py-4 text-center text-xs"
+                    style={{ color: "var(--color-text-muted)" }}
+                  >
+                    読み込み中...
+                  </div>
+                ) : (
+                  <>
+                    <CommandEmpty style={{ color: "var(--color-text-muted)" }}>
+                      銘柄が見つかりません
+                    </CommandEmpty>
+                    <CommandGroup>
+                      {symbols
+                        .map((symbol) => (
+                          <CommandItem
+                            key={symbol.code}
+                            value={`${symbol.code} ${symbol.name}`}
+                            onSelect={() => handleSelect(symbol.code)}
+                            className="gap-2 text-xs cursor-pointer"
+                            style={{ color: "var(--color-text-primary)" }}
+                          >
+                            <span className="font-medium">{symbol.code}</span>
+                            <span className="truncate" style={{ color: "var(--color-text-secondary)" }}>
+                              {symbol.name}
+                            </span>
+                          </CommandItem>
+                        ))}
+                    </CommandGroup>
+                  </>
+                )}
+              </CommandList>
+            )}
+          </Command>
+        </div>
+
         <button
           type="button"
           onClick={toggleViewMode}
           aria-label={viewMode === "compact" ? "スパークラインを表示" : "コンパクト表示に切り替え"}
-          className="rounded p-0.5 hover:bg-[var(--color-surface-3)] transition-colors"
+          className="shrink-0 rounded p-0.5 hover:bg-[var(--color-surface-3)] transition-colors"
           style={{ color: "var(--color-text-muted)" }}
         >
           {viewMode === "compact" ? (
@@ -138,11 +208,6 @@ export function WatchlistPanel({ onItemClick }: WatchlistPanelProps) {
             </SortableContext>
           </DndContext>
         )}
-      </div>
-
-      <Separator style={{ backgroundColor: "var(--color-border)" }} />
-      <div className="px-1 py-1">
-        <WatchlistAddButton />
       </div>
     </div>
   );

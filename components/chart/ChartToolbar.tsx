@@ -1,8 +1,10 @@
 "use client";
 
+import { Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSelectedSymbol, type Interval } from "@/hooks/useSelectedSymbol";
 import { useSymbols } from "@/hooks/useSymbols";
+import { useWatchlist } from "@/hooks/useWatchlist";
 import { IndicatorToolbar } from "./IndicatorToolbar";
 import { SymbolLogo } from "@/components/ui/SymbolLogo";
 
@@ -22,7 +24,9 @@ interface ChartToolbarProps {
 export function ChartToolbar({ smaEnabled, toggleSma, bollingerEnabled, toggleBollinger }: ChartToolbarProps) {
   const { symbol, interval, setInterval } = useSelectedSymbol();
   const { symbols } = useSymbols();
+  const { items, addSymbol, removeSymbol } = useWatchlist();
   const selectedSymbol = symbols.find((s) => s.code === symbol);
+  const isWatched = symbol !== null && items.some((i) => i.symbol_code === symbol);
 
   return (
     <div
@@ -49,6 +53,24 @@ export function ChartToolbar({ smaEnabled, toggleSma, bollingerEnabled, toggleBo
             >
               {selectedSymbol.name}
             </span>
+            {symbol && (
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    if (isWatched) await removeSymbol(symbol);
+                    else await addSymbol(symbol);
+                  } catch {
+                    // SWR がオプティミスティック更新をロールバックする
+                  }
+                }}
+                aria-label={isWatched ? "ウォッチリストから削除" : "ウォッチリストに追加"}
+                className="rounded p-0.5 hover:bg-[var(--color-surface-3)] transition-colors"
+                style={{ color: isWatched ? "var(--color-accent)" : "var(--color-text-muted)" }}
+              >
+                <Bookmark className="h-3.5 w-3.5" fill={isWatched ? "currentColor" : "none"} />
+              </button>
+            )}
           </>
         ) : (
           <span
