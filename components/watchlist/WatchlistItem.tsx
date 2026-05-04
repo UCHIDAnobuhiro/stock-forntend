@@ -59,7 +59,7 @@ export function WatchlistItem({ id, code, name, logoUrl, isActive, onClick, onRe
         {...listeners}
         aria-label="並び替え"
         className={cn(
-          "shrink-0 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity",
+          "shrink-0 cursor-grab active:cursor-grabbing transition-opacity opacity-100 md:opacity-0 md:group-hover:opacity-100",
           viewMode === "chart" ? "self-stretch flex items-center" : "mt-0"
         )}
         style={{ color: "var(--color-text-muted)" }}
@@ -99,7 +99,7 @@ export function WatchlistItem({ id, code, name, logoUrl, isActive, onClick, onRe
         type="button"
         aria-label={`${code} をウォッチリストから削除`}
         className={cn(
-          "shrink-0 opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 hover:bg-[var(--color-surface-3)]",
+          "shrink-0 transition-opacity rounded p-0.5 hover:bg-[var(--color-surface-3)] opacity-100 md:opacity-0 md:group-hover:opacity-100",
           viewMode === "chart" ? "self-stretch flex items-center" : ""
         )}
         style={{ color: "var(--color-text-muted)" }}
