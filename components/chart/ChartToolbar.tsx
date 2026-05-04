@@ -53,15 +53,24 @@ export function ChartToolbar({ smaEnabled, toggleSma, bollingerEnabled, toggleBo
             >
               {selectedSymbol.name}
             </span>
-            <button
-              type="button"
-              onClick={() => isWatched ? removeSymbol(symbol!) : addSymbol(symbol!)}
-              aria-label={isWatched ? "ウォッチリストから削除" : "ウォッチリストに追加"}
-              className="rounded p-0.5 hover:bg-[var(--color-surface-3)] transition-colors"
-              style={{ color: isWatched ? "var(--color-accent)" : "var(--color-text-muted)" }}
-            >
-              <Bookmark className="h-3.5 w-3.5" fill={isWatched ? "currentColor" : "none"} />
-            </button>
+            {symbol && (
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    if (isWatched) await removeSymbol(symbol);
+                    else await addSymbol(symbol);
+                  } catch {
+                    // SWR がオプティミスティック更新をロールバックする
+                  }
+                }}
+                aria-label={isWatched ? "ウォッチリストから削除" : "ウォッチリストに追加"}
+                className="rounded p-0.5 hover:bg-[var(--color-surface-3)] transition-colors"
+                style={{ color: isWatched ? "var(--color-accent)" : "var(--color-text-muted)" }}
+              >
+                <Bookmark className="h-3.5 w-3.5" fill={isWatched ? "currentColor" : "none"} />
+              </button>
+            )}
           </>
         ) : (
           <span

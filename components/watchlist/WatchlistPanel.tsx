@@ -100,6 +100,7 @@ export function WatchlistPanel({ onItemClick }: WatchlistPanelProps) {
         >
           <Command className="overflow-visible! bg-transparent! rounded-none! p-0! h-full [&_[data-slot=command-input-wrapper]]:p-0 [&_[data-slot=command-input-wrapper]]:h-full [&_[data-slot=input-group]]:h-full! [&_[data-slot=input-group]]:border-0! [&_[data-slot=input-group]]:bg-transparent! [&_[data-slot=input-group]]:rounded-none! [&_[data-slot=input-group]]:shadow-none!">
             <CommandInput
+              value={query}
               placeholder="銘柄コード・企業名で検索..."
               className="text-xs"
               style={{ color: "var(--color-text-primary)" }}
