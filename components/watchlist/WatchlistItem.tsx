@@ -60,7 +60,7 @@ export function WatchlistItem({ id, code, name, logoUrl, isActive, onClick, onRe
         aria-label="並び替え"
         className={cn(
           "shrink-0 cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity",
-          viewMode === "chart" && "mt-0.5"
+          viewMode === "chart" ? "self-stretch flex items-center" : "mt-0"
         )}
         style={{ color: "var(--color-text-muted)" }}
         onClick={(e) => e.stopPropagation()}
@@ -71,9 +71,8 @@ export function WatchlistItem({ id, code, name, logoUrl, isActive, onClick, onRe
       {/* アクティブインジケーター */}
       <span
         className={cn(
-          "h-1.5 w-1.5 shrink-0 rounded-full transition-colors",
-          isActive ? "opacity-100" : "opacity-0",
-          viewMode === "chart" && "mt-1.5"
+          "h-1.5 w-1.5 shrink-0 rounded-full transition-colors self-center",
+          isActive ? "opacity-100" : "opacity-0"
         )}
         style={{ backgroundColor: "var(--color-accent)" }}
       />
@@ -110,7 +109,7 @@ export function WatchlistItem({ id, code, name, logoUrl, isActive, onClick, onRe
         aria-label={`${code} をウォッチリストから削除`}
         className={cn(
           "shrink-0 opacity-0 group-hover:opacity-100 transition-opacity rounded p-0.5 hover:bg-[var(--color-surface-3)]",
-          viewMode === "chart" && "mt-0.5"
+          viewMode === "chart" ? "self-stretch flex items-center" : ""
         )}
         style={{ color: "var(--color-text-muted)" }}
         onClick={(e) => {
