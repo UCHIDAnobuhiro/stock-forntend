@@ -3,8 +3,6 @@
 import { LogOut, Menu, ScanSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { useSelectedSymbol } from "@/hooks/useSelectedSymbol";
-import { useSymbols } from "@/hooks/useSymbols";
 import { useLogout } from "@/hooks/useLogout";
 
 interface TopbarProps {
@@ -13,10 +11,7 @@ interface TopbarProps {
 }
 
 export default function Topbar({ onLogoSearchOpen, onMobileSidebarOpen }: TopbarProps) {
-  const { symbol } = useSelectedSymbol();
-  const { symbols } = useSymbols();
   const { handleLogout } = useLogout();
-  const selectedSymbol = symbols.find((s) => s.code === symbol);
 
   return (
     <header
@@ -42,30 +37,8 @@ export default function Topbar({ onLogoSearchOpen, onMobileSidebarOpen }: Topbar
         className="text-sm font-semibold tracking-wide"
         style={{ color: "var(--color-text-primary)" }}
       >
-        Stock
+        Stock View App
       </span>
-
-      {/* 選択中の銘柄 */}
-      {selectedSymbol && (
-        <div className="flex items-center gap-2 ml-2">
-          <span
-            className="h-2 w-2 rounded-full"
-            style={{ backgroundColor: "var(--color-accent)" }}
-          />
-          <span
-            className="text-sm font-medium"
-            style={{ color: "var(--color-text-primary)" }}
-          >
-            {selectedSymbol.code}
-          </span>
-          <span
-            className="text-sm hidden sm:inline"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
-            {selectedSymbol.name}
-          </span>
-        </div>
-      )}
 
       {/* 右側アクション */}
       <div className="ml-auto flex items-center gap-1">
