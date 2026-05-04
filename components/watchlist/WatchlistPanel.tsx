@@ -136,7 +136,7 @@ export function WatchlistPanel({ onItemClick }: WatchlistPanelProps) {
                             style={{ color: "var(--color-text-primary)" }}
                           >
                             <span className="font-medium">{symbol.code}</span>
-                            <span style={{ color: "var(--color-text-secondary)" }}>
+                            <span className="truncate" style={{ color: "var(--color-text-secondary)" }}>
                               {symbol.name}
                             </span>
                           </CommandItem>
