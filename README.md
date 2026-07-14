@@ -3,7 +3,7 @@
 ## 概要
 
 **株式データ表示・ウォッチリスト管理フロントエンド**
-Next.js（App Router）と TypeScript で構築し、`stock_backend`（Go / Gin）と連携します。
+Next.js（App Router）と TypeScript で構築し、`stock_backend`（Go / net/http + chi）と連携します。
 株価チャートの表示・ウォッチリスト管理・企業ロゴ分析機能を提供します。
 
 ## 主な機能
