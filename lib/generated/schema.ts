@@ -132,6 +132,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/quotes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 複数銘柄の株価サマリー一括取得
+         * @description 指定した複数銘柄コードの最新終値・前日比をまとめて取得します。
+         *     `bars` を指定するとスパークライン表示用の直近終値配列も併せて返します。
+         *     ローソク足が2本未満の銘柄はレスポンスから除外されます（順序は保証されません）。
+         */
+        get: operations["getQuotes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/symbols": {
         parameters: {
             query?: never;
@@ -288,6 +310,37 @@ export interface components {
              * @description 出来高
              */
             volume: number;
+        };
+        QuoteResponse: {
+            /** @description 銘柄コード（例: AAPL, 7203.T） */
+            code: string;
+            /**
+             * @description 最新足の日付（YYYY-MM-DD形式）
+             * @example 2024-01-15
+             */
+            time: string;
+            /**
+             * Format: double
+             * @description 最新終値
+             */
+            close: number;
+            /**
+             * Format: double
+             * @description 前日終値
+             */
+            prev_close: number;
+            /**
+             * Format: double
+             * @description 前日比（close - prev_close）
+             */
+            change: number;
+            /**
+             * Format: double
+             * @description 前日比率（%）
+             */
+            change_percent: number;
+            /** @description スパークライン用の直近終値（古い→新しい順）。bars > 0 のときのみ含まれる */
+            closes?: number[];
         };
         SymbolItem: {
             /** @description 銘柄コード（例: AAPL, 7203.T） */
@@ -678,6 +731,52 @@ export interface operations {
                 };
             };
             /** @description バリデーションエラー（outputsizeに整数以外、outputsize範囲外、未対応のinterval等） */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            401: components["responses"]["UnauthorizedError"];
+            /** @description サーバーエラー */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getQuotes: {
+        parameters: {
+            query: {
+                /** @description カンマ区切りの銘柄コード（1〜50件、各コードは ^[A-Za-z0-9._-]{1,20}$） */
+                codes: string;
+                /** @description 時間間隔 */
+                interval?: "1day" | "1week" | "1month";
+                /** @description スパークライン用に含める直近終値の本数（0〜500） */
+                bars?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 株価サマリー一覧 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuoteResponse"][];
+                };
+            };
+            /** @description バリデーションエラー（codesの件数超過・形式不正、未対応のinterval、bars範囲外等） */
             400: {
                 headers: {
                     [name: string]: unknown;
