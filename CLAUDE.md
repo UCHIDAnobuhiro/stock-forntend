@@ -102,6 +102,8 @@ Go バックエンド
 | `POST /v1/signup` | 不要 | ユーザー登録 |
 | `POST /v1/login` | 不要 | ログイン（Cookie発行） |
 | `DELETE /v1/logout` | 不要 | ログアウト（Cookie削除） |
+| `GET /v1/auth/oauth/{provider}` | 不要 | OAuthログイン開始（プロバイダーへリダイレクト） |
+| `GET /v1/auth/oauth/{provider}/callback` | 不要 | OAuthコールバック（Cookie発行後フロントへリダイレクト） |
 | `GET /v1/candles/{code}` | Cookie | ローソク足データ取得 |
 | `GET /v1/symbols` | Cookie | アクティブ銘柄一覧 |
 | `GET /v1/watchlist` | Cookie | ウォッチリスト取得 |
