@@ -77,6 +77,11 @@ export function useSignup() {
         case 429:
           setServerError("しばらく時間をおいてから再度お試しください");
           break;
+        case 503:
+          setServerError(
+            "サービスが一時的に利用できません。時間をおいて再度お試しください",
+          );
+          break;
         default:
           setServerError("エラーが発生しました。時間をおいて再度お試しください");
       }

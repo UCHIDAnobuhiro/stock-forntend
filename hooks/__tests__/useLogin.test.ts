@@ -5,13 +5,15 @@ import { useLogin } from "@/hooks/useLogin";
 // ---- モック設定 ----
 // vi.mock はファイル先頭にホイストされるため、vi.hoisted で事前に変数を初期化する
 
-const { mockReplace, mockPost } = vi.hoisted(() => ({
+const { mockReplace, mockPost, mockUseSearchParams } = vi.hoisted(() => ({
   mockReplace: vi.fn(),
   mockPost: vi.fn(),
+  mockUseSearchParams: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: mockReplace }),
+  useSearchParams: mockUseSearchParams,
 }));
 
 vi.mock("@/lib/api", () => ({
@@ -29,6 +31,7 @@ const fakeEvent = () =>
 describe("useLogin", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseSearchParams.mockReturnValue(new URLSearchParams());
   });
 
   // バリデーション
@@ -194,6 +197,28 @@ describe("useLogin", () => {
       );
     });
 
+    it("503 のときサービス利用不可のエラーメッセージが設定される", async () => {
+      mockPost.mockResolvedValue({
+        data: null,
+        error: null,
+        response: { status: 503 },
+      });
+
+      const { result } = renderHook(() => useLogin());
+
+      await act(async () => {
+        result.current.setEmail("user@example.com");
+        result.current.setPassword("password");
+      });
+      await act(async () => {
+        await result.current.handleSubmit(fakeEvent());
+      });
+
+      expect(result.current.serverError).toBe(
+        "サービスが一時的に利用できません。時間をおいて再度お試しください"
+      );
+    });
+
     it("予期しないステータスコードのとき汎用エラーメッセージが設定される", async () => {
       mockPost.mockResolvedValue({
         data: null,
@@ -230,6 +255,67 @@ describe("useLogin", () => {
       });
 
       expect(result.current.serverError).toBe("ネットワークエラーが発生しました");
+    });
+  });
+
+  // OAuth コールバックエラー（?error=<code>）
+  describe("OAuth エラー", () => {
+    it("error=account_conflict のとき既存アカウント案内メッセージが初期表示される", () => {
+      mockUseSearchParams.mockReturnValue(
+        new URLSearchParams("error=account_conflict")
+      );
+
+      const { result } = renderHook(() => useLogin());
+
+      expect(result.current.serverError).toBe(
+        "このメールアドレスは既に登録されています。メールアドレスとパスワードでログインしてください"
+      );
+    });
+
+    it("未知のエラーコードのとき汎用のソーシャルログイン失敗メッセージが初期表示される", () => {
+      mockUseSearchParams.mockReturnValue(
+        new URLSearchParams("error=some_unknown_code")
+      );
+
+      const { result } = renderHook(() => useLogin());
+
+      expect(result.current.serverError).toBe(
+        "ソーシャルログインに失敗しました。時間をおいて再度お試しください"
+      );
+    });
+
+    it("error パラメータがないとき serverError は null のまま", () => {
+      const { result } = renderHook(() => useLogin());
+
+      expect(result.current.serverError).toBeNull();
+    });
+
+    it("フォーム送信を開始すると OAuth エラー表示が消える", async () => {
+      mockUseSearchParams.mockReturnValue(
+        new URLSearchParams("error=account_conflict")
+      );
+      mockPost.mockResolvedValue({
+        data: null,
+        error: null,
+        response: { status: 401 },
+      });
+
+      const { result } = renderHook(() => useLogin());
+      expect(result.current.serverError).toBe(
+        "このメールアドレスは既に登録されています。メールアドレスとパスワードでログインしてください"
+      );
+
+      await act(async () => {
+        result.current.setEmail("user@example.com");
+        result.current.setPassword("password");
+      });
+      await act(async () => {
+        await result.current.handleSubmit(fakeEvent());
+      });
+
+      expect(result.current.serverError).toBe(
+        "メールアドレスまたはパスワードが正しくありません"
+      );
     });
   });
 

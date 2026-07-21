@@ -7,13 +7,24 @@ import type { components } from "@/lib/generated/schema";
 export type CompanyAnalysisResponse = components["schemas"]["CompanyAnalysisResponse"];
 
 async function analyzeCompany(_key: string, { arg }: { arg: string }) {
-  const { data, error } = await apiClient.POST("/v1/logo/analyze", {
+  const { data, error, response } = await apiClient.POST("/v1/logo/analyze", {
     params: { header: CSRF_HEADER },
     body: { company_name: arg },
   });
   if (error) {
     console.error("[useLogoAnalyze] API error:", error);
-    throw new Error("企業分析に失敗しました");
+    switch (response.status) {
+      case 429:
+        throw new Error(
+          "リクエストが多すぎます。しばらく時間をおいてから再度お試しください",
+        );
+      case 503:
+        throw new Error(
+          "サービスが一時的に利用できません。時間をおいて再度お試しください",
+        );
+      default:
+        throw new Error("企業分析に失敗しました");
+    }
   }
   return data ?? null;
 }

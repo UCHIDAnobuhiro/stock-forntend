@@ -7,7 +7,7 @@ import type { components } from "@/lib/generated/schema";
 export type DetectedLogoResponse = components["schemas"]["DetectedLogoResponse"];
 
 async function detectLogo(_key: string, { arg }: { arg: File }) {
-  const { data, error } = await apiClient.POST("/v1/logo/detect", {
+  const { data, error, response } = await apiClient.POST("/v1/logo/detect", {
     params: { header: CSRF_HEADER },
     body: { image: arg } as never,
     bodySerializer: () => {
@@ -16,7 +16,22 @@ async function detectLogo(_key: string, { arg }: { arg: File }) {
       return formData;
     },
   });
-  if (error) throw new Error("ロゴ検出に失敗しました");
+  if (error) {
+    switch (response.status) {
+      case 413:
+        throw new Error("画像サイズが大きすぎます（最大10MB）");
+      case 429:
+        throw new Error(
+          "リクエストが多すぎます。しばらく時間をおいてから再度お試しください",
+        );
+      case 503:
+        throw new Error(
+          "サービスが一時的に利用できません。時間をおいて再度お試しください",
+        );
+      default:
+        throw new Error("ロゴ検出に失敗しました");
+    }
+  }
   return data ?? [];
 }
 
