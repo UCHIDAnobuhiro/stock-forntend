@@ -139,12 +139,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * 複数銘柄の株価サマリー一括取得
-         * @description 指定した複数銘柄コードの最新終値・前日比をまとめて取得します。
-         *     `bars` を指定するとスパークライン表示用の直近終値配列も併せて返します。
-         *     ローソク足が2本未満の銘柄はレスポンスから除外されます（順序は保証されません）。
-         */
+        /** 複数銘柄の最新終値・前日比・スパークライン用終値配列を一括取得 */
         get: operations["getQuotes"];
         put?: never;
         post?: never;
@@ -336,10 +331,10 @@ export interface components {
             change: number;
             /**
              * Format: double
-             * @description 前日比率（%）
+             * @description 前日比率（%）。prev_closeが0の場合は0
              */
             change_percent: number;
-            /** @description スパークライン用の直近終値（古い→新しい順）。bars > 0 のときのみ含まれる */
+            /** @description スパークライン用の終値配列（古い→新しい順、最大bars本）。bars=0の場合は含まれない */
             closes?: number[];
         };
         SymbolItem: {
@@ -754,11 +749,11 @@ export interface operations {
     getQuotes: {
         parameters: {
             query: {
-                /** @description カンマ区切りの銘柄コード（1〜50件、各コードは ^[A-Za-z0-9._-]{1,20}$） */
+                /** @description カンマ区切りの銘柄コード（1〜50件、例: AAPL,GOOGL,7203.T）。重複は順序を保って除去される */
                 codes: string;
                 /** @description 時間間隔 */
                 interval?: "1day" | "1week" | "1month";
-                /** @description スパークライン用に含める直近終値の本数（0〜500） */
+                /** @description スパークライン用に含める直近終値の本数（0〜500）。0の場合はclosesを含めない */
                 bars?: number;
             };
             header?: never;
@@ -767,7 +762,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description 株価サマリー一覧 */
+            /** @description 銘柄ごとの最新終値・前日比一覧（ローソク足2本未満の銘柄は除外。順序は保証しない） */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -776,7 +771,7 @@ export interface operations {
                     "application/json": components["schemas"]["QuoteResponse"][];
                 };
             };
-            /** @description バリデーションエラー（codesの件数超過・形式不正、未対応のinterval、bars範囲外等） */
+            /** @description バリデーションエラー（codes未指定/空/51件以上/パターン不一致、未対応のinterval、barsに整数以外/範囲外等） */
             400: {
                 headers: {
                     [name: string]: unknown;
