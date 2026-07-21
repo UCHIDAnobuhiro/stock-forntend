@@ -36,10 +36,20 @@ describe("useSessionExpiry", () => {
     expect(result.current.isExpired).toBe(false);
   });
 
-  it("ポーリング: csrf_token Cookie が null のとき isExpired が true になる", () => {
+  it("即時チェック: マウント直後に csrf_token Cookie が null のとき isExpired が true になる", () => {
     mockGetCsrfToken.mockReturnValue(null);
 
     const { result } = renderHook(() => useSessionExpiry());
+
+    expect(result.current.isExpired).toBe(true);
+  });
+
+  it("ポーリング: csrf_token Cookie が null のとき isExpired が true になる", () => {
+    const { result } = renderHook(() => useSessionExpiry());
+
+    expect(result.current.isExpired).toBe(false);
+
+    mockGetCsrfToken.mockReturnValue(null);
 
     act(() => {
       vi.advanceTimersByTime(60_000);
@@ -95,11 +105,11 @@ describe("useSessionExpiry", () => {
   });
 
   it("クリーンアップ: アンマウント後はポーリングに反応しない", () => {
-    mockGetCsrfToken.mockReturnValue(null);
-
     const { result, unmount } = renderHook(() => useSessionExpiry());
 
     unmount();
+
+    mockGetCsrfToken.mockReturnValue(null);
 
     act(() => {
       vi.advanceTimersByTime(60_000);
