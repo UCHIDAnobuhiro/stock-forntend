@@ -209,6 +209,28 @@ describe("useSignup", () => {
       );
     });
 
+    it("503 のときサービス利用不可のエラーメッセージが設定される", async () => {
+      mockPost.mockResolvedValue({
+        data: null,
+        error: null,
+        response: { ok: false, status: 503 },
+      });
+
+      const { result } = renderHook(() => useSignup());
+
+      await act(async () => {
+        result.current.setEmail("user@example.com");
+        result.current.setPassword("password1234");
+      });
+      await act(async () => {
+        await result.current.handleSubmit(fakeEvent());
+      });
+
+      expect(result.current.serverError).toBe(
+        "サービスが一時的に利用できません。時間をおいて再度お試しください"
+      );
+    });
+
     it("予期しないステータスコードのとき汎用エラーメッセージが設定される", async () => {
       mockPost.mockResolvedValue({
         data: null,

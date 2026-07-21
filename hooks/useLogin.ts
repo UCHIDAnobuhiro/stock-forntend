@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type SubmitEventHandler } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import apiClient from "@/lib/api";
 
 interface FieldErrors {
@@ -10,17 +10,39 @@ interface FieldErrors {
 }
 
 /**
+ * OAuth コールバック失敗時に /login?error=<code> で渡されるエラーコードと
+ * 表示文言の対応表。バックエンドのパラメータ仕様が確定した際はキーのみ直す。
+ */
+const OAUTH_ERROR_MESSAGES: Record<string, string> = {
+  account_conflict:
+    "このメールアドレスは既に登録されています。メールアドレスとパスワードでログインしてください",
+};
+
+function getOAuthErrorMessage(code: string): string {
+  return (
+    OAUTH_ERROR_MESSAGES[code] ??
+    "ソーシャルログインに失敗しました。時間をおいて再度お試しください"
+  );
+}
+
+/**
  * ログインフォームのロジックを管理するフック。
  * バリデーション・API 送信・エラー状態・リダイレクトを担う。
+ * OAuth コールバック失敗時は ?error=<code> クエリを読み取り、
+ * 対応するエラーメッセージを初期表示する（生のクエリ値は表示しない）。
  */
 export function useLogin() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<string | null>(() => {
+    const oauthError = searchParams.get("error");
+    return oauthError ? getOAuthErrorMessage(oauthError) : null;
+  });
 
   /**
    * クライアントサイドのバリデーションを実行する。
@@ -75,6 +97,11 @@ export function useLogin() {
           break;
         case 429:
           setServerError("しばらく時間をおいてから再度お試しください");
+          break;
+        case 503:
+          setServerError(
+            "サービスが一時的に利用できません。時間をおいて再度お試しください",
+          );
           break;
         default:
           setServerError("エラーが発生しました。時間をおいて再度お試しください");
