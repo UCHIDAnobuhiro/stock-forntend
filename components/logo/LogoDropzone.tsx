@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload, Image } from "lucide-react";
+import { Upload, Image as ImageIcon } from "lucide-react";
 
 interface LogoDropzoneProps {
   onFile: (file: File) => void;
@@ -65,7 +65,7 @@ export function LogoDropzone({ onFile, isLoading, preview }: LogoDropzoneProps) 
           className="flex flex-col items-center justify-center gap-2 p-6 text-center"
           style={{ color: "var(--color-text-muted)" }}
         >
-          <Image className="h-8 w-8" />
+          <ImageIcon className="h-8 w-8" />
           <p className="text-xs">
             ドラッグ&ドロップ<br />または クリックして選択
           </p>
